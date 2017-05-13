@@ -1,8 +1,12 @@
 package com.example.teacher.cloudchat;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -22,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("message");
     ArrayList<String> chats;
+    String nickname;
     ListView lv;
     ArrayAdapter adapter;
     EditText ed;
@@ -56,11 +61,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sp = getSharedPreferences("chat", MODE_PRIVATE);
+        nickname = sp.getString("nickname", "user");
+    }
+
     public void clickSend(View v)
     {
-        chats.add("Teacher:" + ed.getText().toString());
+        chats.add(nickname + ":" + ed.getText().toString());
         Gson gson = new Gson();
         String json = gson.toJson(chats);
         myRef.setValue(json);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add("Settings");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent it = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(it);
+        return super.onOptionsItemSelected(item);
     }
 }
